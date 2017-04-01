@@ -70,14 +70,18 @@ export let UserSchema = model<IUser>('User', schema)
 
 export class User {
   
-  constructor(private _document: IUser) {  }
+  constructor(public document: IUser) {  }
 
   get username(): string {
-    return this._document.username
+    return this.document && this.document.username
   }
 
   get password(): string {
-    return this._document.password
+    return this.document && this.document.password
+  }
+
+  get id(): string {
+    return this.document && this.document._id
   }
 
   static create(user: IUser) {
@@ -140,13 +144,13 @@ export class User {
     })
   }
 
-  static checkPassword({username, password}): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
+  static checkPassword({username, password}): Promise<User | null> {
+    return new Promise<User | null>((resolve, reject) => {
       User.find({ username: username })
         .then(foundUser => {
           if (!foundUser) { reject({err: 'user not exist'}) }
           foundUser.comparePassword(password)
-            .then(isMatch => resolve(isMatch))
+            .then(isMatch => resolve(isMatch?foundUser:null))
             .catch(err => reject({err: 'user not exist'}))
         })
     })
@@ -154,7 +158,7 @@ export class User {
 
   private comparePassword(password): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      bcrypt.compare(password, this._document.password, function (err, isMatch) {
+      bcrypt.compare(password, this.document.password, function (err, isMatch) {
         if (err) { return reject(err) }
         resolve(isMatch)
       })

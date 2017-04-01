@@ -2,9 +2,12 @@ import * as http from 'http'
 import {Router, Request, Response, NextFunction} from 'express'
 import axios from 'axios'
 import * as debug from 'debug'
+import * as jwt from 'jsonwebtoken'
 
 let serverDebugger = debug('ts-express:server')
 import { User } from './user.model'
+
+import { authenticate } from '../../auth'
 
 class UserRouter {
   router: Router
@@ -13,9 +16,8 @@ class UserRouter {
     this.router = Router()
     this.router.get('/', this.getAll)
     this.router.post('/', this.add)
-    this.router.post('/exist', this.checkUsername)
+    this.router.post('/exist', authenticate, this.checkUsername)
     this.router.post('/login', this.login)
-    // this.router.get('/:id', this.getPostById)
   }
   
   public add(req: Request, res: Response, next: NextFunction) {
@@ -50,7 +52,13 @@ class UserRouter {
 
   public login(req: Request, res: Response, next: NextFunction) {
     let { username, password } = req.body
-    User.checkPassword({username, password}).then(pass => res.json({pass}))
+    User.checkPassword({username, password}).then(user => {
+      if (user) {
+        let token = jwt.sign({ id: user.id }, 'kaimansb0307')
+        return res.json({token})
+      }
+      res.json({success: false})
+    })
   }
   // public getAll(req: Request, res: Response, next: NextFunction) {
   //   ghost.getPosts().then( posts => {

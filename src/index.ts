@@ -1,8 +1,8 @@
 import * as http from 'http'
-import * as debug from 'debug'
 import App from './App'
 import { connect } from 'mongoose'
 
+import * as debug from 'debug'
 let serverDebugger = debug('ts-express:server')
 
 connect('mongodb://localhost:27017/music').then(() => serverDebugger('mongodb connected'))
