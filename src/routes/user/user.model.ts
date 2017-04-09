@@ -3,15 +3,21 @@ import { Schema, model, Document } from 'mongoose'
 import * as bcrypt from 'bcryptjs'
 import * as debug from 'debug'
 import * as passport from 'passport'
+import { IList } from '../list/list.model'
 
 let serverDebugger = debug('ts-express:server')
 
+
+type ObjectId = Schema.Types.ObjectId
+
 export interface IUser extends Document {
-  id?: string
+  id?: ObjectId
   username: any
   password: any
   created?: Date
   updated?: Date
+  role: 'user' | 'admin'
+  lists: Array<IList>
 }
 
 let schema = new Schema({
@@ -21,6 +27,10 @@ let schema = new Schema({
     required: true
   },
   password: {
+    type: String,
+    required: true
+  },
+  role: {
     type: String,
     required: true
   },
@@ -79,11 +89,16 @@ export class User {
     return this.document && this.document.password
   }
 
-  get id(): string {
+  get id(): ObjectId {
     return this.document && this.document._id
   }
 
+  get role() {
+    return this.document && this.document.role
+  }
+
   static create(user: IUser) {
+    user.role = 'user'
     serverDebugger('creating user :', user)
     return new Promise<User>((resolve, reject) => {
       new UserSchema(user)
@@ -97,7 +112,7 @@ export class User {
       })
     })
   }
-  
+
   static findOrCreate(profile: passport.Profile): Promise<User> {
     return new Promise<User>((resolve, reject) => {
       UserSchema.findOne({

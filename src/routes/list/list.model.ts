@@ -9,10 +9,9 @@ import { IUser, User } from '../user/user.model'
 let serverDebugger = debug('ts-express:server')
 
 export interface IList extends Document {
-  id?: Schema.Types.ObjectId
   name: string
   userid: Schema.Types.ObjectId
-  musics: Array<string>
+  musics: Array<Schema.Types.ObjectId>
   created?: Date
   updated?: Date
 }
@@ -25,6 +24,10 @@ let listSchema = new Schema({
   musics: {
     type: Array,
     required: false
+  },
+  userid: {
+    type: Schema.Types.ObjectId,
+    required: true
   },
   created: {
     type: Date,
@@ -66,7 +69,7 @@ export class List {
     return this.document && this.document._id
   }
   
-  get musics(): Array<string> {
+  get musics(): Array<Schema.Types.ObjectId> {
     return this.document && this.document.musics
   }
   
@@ -83,6 +86,48 @@ export class List {
         serverDebugger(err)
         reject(err)
       })
+    })
+  }
+
+  static findById(listId: Schema.Types.ObjectId) {
+    serverDebugger('find list by id:', listId)
+    return new Promise<IList> ((resolve, reject) => {
+      ListSchema.findById(listId)
+      .exec()
+      .then(listFound => {
+        serverDebugger('found list:', listFound)
+        resolve(listFound)
+      })
+      .catch(error => {
+        serverDebugger('find list error:', error)
+        reject(error)
+      })
+    })
+  }
+
+  static delete(listId: Schema.Types.ObjectId, user: User) {
+    serverDebugger('deleting list :', listId)
+    serverDebugger('by user:', user)
+    return new Promise<void> ( (resolve, reject) => {
+      List.findById(listId)
+        .then(listToBeDelete => {
+          if (user.id != listToBeDelete.userid && user.role != 'admin') {
+            serverDebugger('delete list false: access deny')
+            return reject()
+          }
+          ListSchema.remove({
+            _id: listId
+          })
+          .exec()
+          .then(deletedList => {
+            serverDebugger('delete list success:', deletedList)
+            return resolve()
+          })
+          .catch(err => {
+            serverDebugger('delete list error:', err)
+            return reject()
+          })
+        })
     })
   }
 

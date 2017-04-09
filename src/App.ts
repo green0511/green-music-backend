@@ -6,7 +6,7 @@ import { musicRouter } from './routes/music'
 import { listRouter } from './routes/list'
 import * as bodyParser from 'body-parser'
 
-import { JwtMiddleware } from './auth'
+import { JwtMiddleware, AuthorizeMiddleware } from './auth'
 
 class App {
 
@@ -14,12 +14,19 @@ class App {
 
   constructor() {
     this.express = express()
+    this.express.all('*', function(req, res, next) {
+      res.header('Access-Control-Allow-Origin', '*')
+      res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+      res.header('Access-Control-Allow-Headers', 'X-Requested-With, content-type, Authorization')
+      next()
+    })
     this.middleware()
     this.routes()
   }
 
   private middleware(): void {
     this.express.use(JwtMiddleware)
+    this.express.use(AuthorizeMiddleware)
     this.express.use(logger('dev'))
     this.express.use(bodyParser.json())
     this.express.use(bodyParser.urlencoded({ extended: false }))
@@ -34,9 +41,9 @@ class App {
       })
     })
     this.express.use('/', router)
-    this.express.use('/user', userRouter)
+    this.express.use('/users', userRouter)
     this.express.use('/music', musicRouter)
-    this.express.use('/list', listRouter)
+    this.express.use('/lists', listRouter)
   }
 
 }

@@ -14,11 +14,19 @@ class ListRouter {
   constructor() {
     this.router = Router()
     this.router.post('/', authenticate, this.createList)
+    this.router.delete('/:listId', authenticate, this.deleteList)
   }
 
   public createList(req: Request, res: Response, next: NextFunction) {
     List.create(req.body, req.user)
       .then(list => res.json(list))
+      .catch(err => next(err))
+  }
+
+  private deleteList(req: Request, res: Response, next: NextFunction) {
+    let { listId } = req.params
+    List.delete(listId, req.user)
+      .then(_ => res.json({success: true}))
       .catch(err => next(err))
   }
 }

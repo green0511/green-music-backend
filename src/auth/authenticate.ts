@@ -1,4 +1,4 @@
-import { User } from './routes/user/user.model'
+import { User } from '../routes/user/user.model'
 import * as debug from 'debug'
 let serverDebugger = debug('ts-express:server')
 
