@@ -33,12 +33,12 @@ let schema = new Schema({
     required: false
   },
 }, {
-    toObject: {
-      virtuals: true
-    }, toJSON: {
-      virtuals: true
-    }
-  })
+  toObject: {
+    virtuals: true
+  }, toJSON: {
+    virtuals: true
+  }
+})
 
 schema.pre('save', function (next) {
   serverDebugger('pre save')
@@ -65,7 +65,6 @@ schema.pre('save', function (next) {
   }
 })
 
-// export let User = model('User', UserSchema)
 export let UserSchema = model<IUser>('User', schema)
 
 export class User {

@@ -2,6 +2,8 @@ import * as path from 'path'
 import * as express from 'express'
 import * as logger from 'morgan'
 import { userRouter } from './routes/user'
+import { musicRouter } from './routes/music'
+import { listRouter } from './routes/list'
 import * as bodyParser from 'body-parser'
 
 import { JwtMiddleware } from './auth'
@@ -33,6 +35,8 @@ class App {
     })
     this.express.use('/', router)
     this.express.use('/user', userRouter)
+    this.express.use('/music', musicRouter)
+    this.express.use('/list', listRouter)
   }
 
 }

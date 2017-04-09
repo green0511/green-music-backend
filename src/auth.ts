@@ -16,7 +16,7 @@ let strategy = new Strategy(options, (payload, next) => {
     .then(user => {
       serverDebugger('found user:', user)
       if (user.document) {
-        next(null, user)
+        next(null, user.document)
       } else {
         next(null)
       }

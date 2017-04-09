@@ -1,6 +1,5 @@
 import * as http from 'http'
-import {Router, Request, Response, NextFunction} from 'express'
-import axios from 'axios'
+import { Router, Request, Response, NextFunction } from 'express'
 import * as debug from 'debug'
 import * as jwt from 'jsonwebtoken'
 
@@ -43,8 +42,8 @@ class UserRouter {
   }
 
   public checkUsername(req: Request, res: Response, next: NextFunction) {
-    const { username, id } = req.body
-    User.find({ username, id })
+    const { username } = req.body
+    User.find({ username })
       .then(user => {
         return res.json({ exist: !!user})
       })
