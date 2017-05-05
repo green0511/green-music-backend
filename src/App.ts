@@ -6,7 +6,7 @@ import { musicRouter } from './routes/music'
 import { listRouter } from './routes/list'
 import * as bodyParser from 'body-parser'
 
-import { JwtMiddleware, AuthorizeMiddleware } from './auth'
+import { auth } from './auth'
 
 class App {
 
@@ -25,8 +25,8 @@ class App {
   }
 
   private middleware(): void {
-    this.express.use(JwtMiddleware)
-    this.express.use(AuthorizeMiddleware)
+    this.express.use(auth.JwtMiddleware)
+    this.express.use(auth.AuthorizeMiddleware)
     this.express.use(logger('dev'))
     this.express.use(bodyParser.json())
     this.express.use(bodyParser.urlencoded({ extended: false }))
@@ -37,7 +37,7 @@ class App {
     let router = express.Router()
     router.get('/', (req, res, next) => {
       res.json({
-        message: 'Hello Express!'
+        date: new Date()
       })
     })
     this.express.use('/', router)

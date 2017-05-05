@@ -4,11 +4,13 @@ let serverDebugger = debug('ts-express:server')
 
 import { Strategy, ExtractJwt, StrategyOptions } from 'passport-jwt'
 
+import { JWT_SIGN_KEY } from './secretKey'
+
 import * as passport from 'passport'
 
 let options: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeader(),
-  secretOrKey: 'kaimansb0307'
+  secretOrKey: JWT_SIGN_KEY
 } 
 let strategy = new Strategy(options, (payload, next) => {
   serverDebugger('jwt payload', payload)

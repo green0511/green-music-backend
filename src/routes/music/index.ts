@@ -5,9 +5,6 @@ import * as debug from 'debug'
 import * as jwt from 'jsonwebtoken'
 
 let serverDebugger = debug('ts-express:server')
-// import { User } from './user.model'
-
-import { authenticate } from '../../auth'
 
 class MusicRouter {
   router: Router

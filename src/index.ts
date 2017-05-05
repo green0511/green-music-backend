@@ -1,11 +1,19 @@
 import * as http from 'http'
+import * as mongoose from 'mongoose'
 import App from './App'
 import { connect } from 'mongoose'
+import { config } from './database.config'
+
+(<any>mongoose)['Promise'] = Promise
 
 import * as debug from 'debug'
 let serverDebugger = debug('ts-express:server')
 
-connect('mongodb://localhost:27017/music').then(() => serverDebugger('mongodb connected'))
+let {user, password, db, host , port: dbPort } = config
+
+let dbAuth = config.user && config.password ? `${config.user}:${config.password}@` : ''
+
+connect(`mongodb://${dbAuth}${host}:${dbPort}/${db}`).then(() => serverDebugger('mongodb connected'))
 
 const port = normalizePort(process.env.PORT || 3000)
 
