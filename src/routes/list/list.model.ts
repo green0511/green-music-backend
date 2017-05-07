@@ -17,6 +17,7 @@ interface IMusic {
 export interface IList extends Document {
   name: string
   desc?: string
+  cover: string
   userid: Schema.Types.ObjectId
   musics?: Array<IMusic>
   created?: Date
@@ -31,6 +32,10 @@ let listSchema = new Schema({
   desc: {
     type: String,
     required: false
+  },
+  cover: {
+    type: String,
+    required: true
   },
   musics: {
     type: Array,
@@ -190,6 +195,23 @@ export class List {
       })
       .exec()
       .then(res => resolve(true))
+      .catch(err => {
+        serverDebugger('err: ', err)
+        resolve(false)
+      })
+    })
+  }
+
+  static removeSong(listId: Schema.Types.ObjectId, song: IMusic) {
+    let { id, platform } = song
+    return new Promise<boolean> (async (resolve, reject) => {
+      ListSchema.findByIdAndUpdate(listId, {
+        $pull: {
+          musics: { id, platform }
+        }
+      })
+      .exec()
+      .then(_ => resolve(true))
       .catch(err => {
         serverDebugger('err: ', err)
         resolve(false)

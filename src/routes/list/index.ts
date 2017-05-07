@@ -7,7 +7,9 @@ import * as jwt from 'jsonwebtoken'
 import { auth } from '../../auth'
 
 import { IUser } from '../user/user.model'
-import { List } from './list.model'
+import { List, IList } from './list.model'
+
+const PLATFORMS: String[] = ['qq']
 
 class ListRouter {
   router: Router
@@ -15,7 +17,7 @@ class ListRouter {
   constructor() {
     this.router = Router()
     // 获得全部歌单
-    this.router.get('/', auth.authenticate, this.getAllMyLists)
+    this.router.get('/', this.getAllLists)
     // 根据 id 获取特定歌单
     this.router.get('/:listId', this.getListById)
     // 创建歌单
@@ -26,14 +28,16 @@ class ListRouter {
     this.router.put('/:listId', auth.authenticate, this.editList)
     // 向歌单中添加歌曲
     this.router.post('/:listId/songs', auth.authenticate, this.addSongToList)
+    // 向歌单中移除歌曲
+    this.router.delete('/:listId/songs', auth.authenticate, this.removeSongFromList)
   }
   
-  public async getAllMyLists(req: Request, res: Response, next: NextFunction) {
-    let findList = await List.find({userid: req.user.id})
+  public async getAllLists(req: Request, res: Response) {
+    let findList = await List.find({})
     return res.json({success: true, msg: '', data: findList})
   }
   
-  public async getListById(req: Request, res: Response, next: NextFunction) {
+  public async getListById(req: Request, res: Response) {
     let { listId } = req.params
     let findList = await List.findById(listId)
     if (!findList) {
@@ -42,8 +46,11 @@ class ListRouter {
     return res.json({success: true, msg: '成功', data: findList})
   }
 
-  public async createList(req: Request, res: Response, next: NextFunction) {
-    let {name, desc} = req.body
+  public async createList(req: Request, res: Response) {
+    let { name, desc, cover } = req.body
+    if (name == undefined || cover == undefined) {
+      return res.json({success: false, msg: '缺少字段'})
+    }
     let findList = await List.findByName(name, req.user)
     if (findList) {
       return res.json({success: false, msg: '歌单名重复'})
@@ -52,14 +59,14 @@ class ListRouter {
     return res.json({success: true, msg: '创建成功', data: createdList})
   }
 
-  private async deleteList(req: Request, res: Response, next: NextFunction) {
+  private async deleteList(req: Request, res: Response) {
     let { listId } = req.params
     let listToBeDelete = await List.findById(listId)
     if (!listToBeDelete) {
       return res.json({success: false, msg: '歌单不存在'})
     }
     let user: IUser = req.user
-    if (listToBeDelete.userid !== user._id && user.role !== 'admin') {
+    if (listToBeDelete.userid.toString() !== user._id.toString() && user.role !== 'admin') {
       return res.json({success: false, msg: '权限不足'})
     }
     List.delete(listToBeDelete._id)
@@ -67,7 +74,7 @@ class ListRouter {
       .catch(err => res.json({success: false, msg: '删除失败'}))
   }
 
-  private async editList(req: Request, res: Response, next: NextFunction) {
+  private async editList(req: Request, res: Response) {
     let { listId } = req.params
     let {name, desc} = req.body
     let listToBeEdit = await List.findById(listId)
@@ -89,7 +96,7 @@ class ListRouter {
     res.json({success: result, msg})
   }
 
-  private async addSongToList(req: Request, res: Response, next: NextFunction) {
+  private async addSongToList(req: Request, res: Response) {
     let { listId } = req.params
 
     let list = await List.findById(listId)
@@ -98,7 +105,7 @@ class ListRouter {
     }
 
     let user: IUser = req.user
-    if (list.userid !== user._id && user.role !== 'admin') {
+    if (list.userid.toString() !== user._id.toString() && user.role !== 'admin') {
       return res.json({success: false, msg: '权限不足'})
     }
 
@@ -107,7 +114,7 @@ class ListRouter {
       return res.json({success: false, msg: '缺少字段'})
     }
 
-    if (['qq'].indexOf(platform) == -1) {
+    if (PLATFORMS.indexOf(platform) == -1) {
       return res.json({success: false, msg: '未知来源'})
     }
 
@@ -127,6 +134,42 @@ class ListRouter {
 
     let result = await List.addSong(list._id, song)
     let msg = result ? "添加成功" : "添加失败"
+    return res.json({success: result, msg})
+
+  }
+
+  async removeSongFromList(req: Request, res: Response) {
+    let { listId } = req.params
+
+    let list = await List.findById(listId)
+    if (!list) {
+      return res.json({success: false, msg: '歌单不存在'})
+    }
+
+    let user: IUser = req.user
+    if (list.userid.toString() !== user._id.toString() && user.role !== 'admin') {
+      return res.json({success: false, msg: '权限不足'})
+    }
+
+    let { id, platform } = req.body
+    if (!id || !platform) {
+      return res.json({success: false, msg: '缺少字段'})
+    }
+
+    if (PLATFORMS.indexOf(platform) == -1) {
+      return res.json({success: false, msg: '未知来源'})
+    }
+
+    let musicToRemove = list.musics.find((item) => {
+      return item.id == id && item.platform == platform
+    })
+
+    if (!musicToRemove) {
+      return res.json({success: false, msg: '歌曲不在此列表中'})
+    }
+    
+    let result = await List.removeSong(listId, musicToRemove)
+    let msg = result ? '移除成功' : '移除失败'
     return res.json({success: result, msg})
 
   }

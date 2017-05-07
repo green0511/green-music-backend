@@ -2,8 +2,8 @@ import * as path from 'path'
 import * as express from 'express'
 import * as logger from 'morgan'
 import { userRouter } from './routes/user'
-import { musicRouter } from './routes/music'
 import { listRouter } from './routes/list'
+import { imageRouter } from './routes/images'
 import * as bodyParser from 'body-parser'
 
 import { auth } from './auth'
@@ -16,15 +16,17 @@ class App {
     this.express = express()
     this.express.all('*', function(req, res, next) {
       res.header('Access-Control-Allow-Origin', '*')
-      res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
-      res.header('Access-Control-Allow-Headers', 'X-Requested-With, content-type, Authorization')
+      res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS, HEAD')
+      res.header('Access-Control-Allow-Headers', 'X-Requested-With, Access-Control-Allow-Headers, content-type, Authorization')
       next()
     })
+    // this.express.
     this.middleware()
     this.routes()
   }
 
   private middleware(): void {
+    this.express.use('/static', express.static('uploads'))
     this.express.use(auth.JwtMiddleware)
     this.express.use(auth.AuthorizeMiddleware)
     this.express.use(logger('dev'))
@@ -42,8 +44,8 @@ class App {
     })
     this.express.use('/', router)
     this.express.use('/users', userRouter)
-    this.express.use('/music', musicRouter)
     this.express.use('/lists', listRouter)
+    this.express.use('/images', imageRouter)
   }
 
 }

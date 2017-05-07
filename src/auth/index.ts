@@ -9,13 +9,13 @@ import * as debug from 'debug'
 let serverDebugger = debug('ts-express:server')
 
 // 初始化权限中间件
-export const UserAuthorize = new ConnectRoles({
+export const userAuthorize = new ConnectRoles({
   failureHandler: function (req, res, action) {
     res.status(403).send({message: 'Access Denied'})
   }
 })
 
-UserAuthorize.use('admin', function (req) {
+userAuthorize.use('admin', function (req) {
   if (req.user.role === 'admin') {
     return true
   }
@@ -28,7 +28,9 @@ export class Auth {
 
     authenticate
 
-    AuthorizeMiddleware = UserAuthorize.middleware()
+    authorize = userAuthorize
+
+    AuthorizeMiddleware = userAuthorize.middleware()
 
     constructor() { 
 

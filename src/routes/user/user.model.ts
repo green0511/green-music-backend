@@ -12,8 +12,10 @@ type ObjectId = Schema.Types.ObjectId
 
 export interface IUser extends Document {
   id?: ObjectId
-  username: any
-  password: any
+  username: string
+  password: string
+  avatar: string
+  active: boolean
   created?: Date
   updated?: Date
   role: 'user' | 'admin'
@@ -29,6 +31,14 @@ let schema = new Schema({
   password: {
     type: String,
     required: true
+  },
+  avatar: {
+    type: String,
+    required: true
+  },
+  active: {
+    type: Boolean,
+    required: false
   },
   role: {
     type: String,
@@ -53,6 +63,9 @@ let schema = new Schema({
 schema.pre('save', function (next) {
   serverDebugger('pre save')
   let user: IUser = this
+  if (user.active == undefined) {
+    user.active = true
+  }
   if (!user.created) {
     user.created = new Date()
   }
@@ -133,6 +146,36 @@ export class User {
     })
   }
 
+  static getAllUsersCount() {
+    return new Promise<number> ((resolve, reject) => {
+      UserSchema.count({})
+        .exec()
+        .then(count => {
+          serverDebugger('count user:', count)
+          resolve(count)
+        })
+        .catch(err => {
+          serverDebugger('count user error: ', err)
+        })
+    })
+  }
+  
+  static getAll(page: number = 1, length: number = 10): Promise<IUser[]> {
+    return new Promise<IUser[]> ((resolve, reject) => {
+      UserSchema.find({})
+        .skip((page - 1) * length)
+        .limit(length)
+        .then(users => {
+          serverDebugger('find users:', users)
+          resolve(users)
+        })
+        .catch(err => {
+          serverDebugger('find all user err: ', err)
+          resolve([])
+        })
+    })
+  }
+
   static findById(id: string): Promise<User> {
     return new Promise<User>((resolve, reject) => {
       UserSchema.findById(id)
@@ -177,6 +220,46 @@ export class User {
         resolve(isMatch)
       })
     }) 
+  }
+
+  static setUserState(userId, state: boolean) {
+    return new Promise<boolean>((resolve, reject) => {
+      UserSchema.findByIdAndUpdate(userId, {
+        active: state
+      })
+      .exec()
+      .then(user => resolve(true))
+      .catch(err => {
+        serverDebugger('err: ', err)
+        resolve(false)
+      })
+    })
+  }
+
+  static setUserAdmin(userId, isAdmin: boolean) {
+    return new Promise<boolean>((resolve, reject) => {
+      UserSchema.findByIdAndUpdate(userId, {
+        role: isAdmin?'admin':'user'
+      })
+      .exec()
+      .then(user => resolve(true))
+      .catch(err => {
+        serverDebugger('err: ', err)
+        resolve(false)
+      })
+    })
+  }
+
+  static remove(userId) {
+    return new Promise<boolean>((resolve, reject) => {
+      UserSchema.findByIdAndRemove(userId)
+        .exec()
+        .then(_ => resolve(true))
+        .catch(err => {
+          serverDebugger('remove user fail: ', err)
+          resolve(false)
+        })
+    })
   }
 
 }
