@@ -4,6 +4,9 @@
 /dist
 /tmp
 
+# pictures
+*.jpg
+
 # dependencies
 /node_modules
 

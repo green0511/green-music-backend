@@ -70,7 +70,7 @@ class UserRouter {
     length = parseInt(length)
     let findUsers = await User.getAll(page, length)
     let allUserCount = await User.getAllUsersCount()
-    res.json({success: true, msg: '', data: findUsers, count: allUserCount})
+    res.json({success: true, msg: '', data: findUsers.map(user => user.toObject()), count: allUserCount})
   }
 
   public checkUsername(req: Request, res: Response, next: NextFunction) {

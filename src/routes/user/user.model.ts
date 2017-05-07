@@ -54,7 +54,13 @@ let schema = new Schema({
   },
 }, {
   toObject: {
-    virtuals: true
+    virtuals: true,
+    transform: function (doc, ret, game) {
+      delete ret.__v
+      delete ret._id
+      delete ret.password
+      return ret
+    }
   }, toJSON: {
     virtuals: true
   }
