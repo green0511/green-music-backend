@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken'
 import * as passport from 'passport'
 import { Strategy, ExtractJwt, StrategyOptions } from 'passport-jwt'
 
-import { User } from '../routes/user/user.model'
+import { User } from '../routes/user'
 
 import * as debug from 'debug'
 let serverDebugger = debug('ts-express:server')
@@ -44,8 +44,8 @@ export class Auth {
             User.findById(payload.id)
             .then(user => {
                 serverDebugger('found user:', user)
-                if (user.document) {
-                next(null, user.document)
+                if (user) {
+                next(null, user)
                 } else {
                 next(null)
                 }

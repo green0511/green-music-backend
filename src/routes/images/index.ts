@@ -6,7 +6,7 @@ let serverDebugger = debug('ts-express:server')
 
 import { getUploadedFiles, getUploadMiddleWare } from './uploader'
 
-import { IUser } from '../user/user.model'
+import { IUser } from '../user'
 import { auth } from '../../auth'
 
 class ImageRoute {

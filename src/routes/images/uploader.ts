@@ -38,7 +38,7 @@ export function getUploadedFiles(type: UploadTypes) {
       if (err) {
         resolve([])
       }
-      resolve(files)
+      resolve(files.filter(file => file !== '.gitkeep'))
     })
   })
 }
