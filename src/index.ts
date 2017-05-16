@@ -2,37 +2,24 @@ import * as http from 'http'
 import * as mongoose from 'mongoose'
 import App from './App'
 import { connect } from 'mongoose'
-import { config } from './database.config'
+import { config } from './env'
 
 (<any>mongoose)['Promise'] = Promise
 
 import * as debug from 'debug'
 let serverDebugger = debug('ts-express:server')
 
-let {user, password, db, host , port: dbPort } = config
+let {db, port } = config
 
-let dbAuth = config.user && config.password ? `${config.user}:${config.password}@` : ''
+let {user, password, name, host, port: dbPort} = db
 
-connect(`mongodb://${dbAuth}${host}:${dbPort}/${db}`).then(() => serverDebugger('mongodb connected'))
+let dbAuthString = user && password ? `${user}:${password}@` : ''
 
-const port = normalizePort(process.env.PORT || 3000)
-
-function normalizePort(val: number | string): number | string | boolean {
-  let port: number = (typeof val === 'string') ? parseInt(val, 10) : val
-  if (isNaN(port)) {
-    return val
-  }
-  else if (port >= 0) {
-    return port
-  }
-  else {
-    return false
-  }
-}
+connect(`mongodb://${dbAuthString}${host}:${dbPort}/${db}`).then(() => serverDebugger('mongodb connected'))
 
 function onError(error: NodeJS.ErrnoException): void {
   if (error.syscall !== 'listen') throw error
-  let bind = (typeof port === 'string') ? 'Pipe ' + port : 'Port ' + port
+  let bind = 'Port ' + port
   switch (error.code) {
     case 'EACCES':
       console.error(`${bind} requires elevated privileges`)

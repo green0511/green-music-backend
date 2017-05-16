@@ -16,9 +16,7 @@ export const userAuthorize = new ConnectRoles({
 })
 
 userAuthorize.use('admin', function (req) {
-  if (req.user.role === 'admin') {
-    return true
-  }
+  return req.user.role === 'admin'
 })
 
 export class Auth {
