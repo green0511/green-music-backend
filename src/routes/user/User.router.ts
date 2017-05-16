@@ -104,10 +104,10 @@ class UserRouter {
       return res.json({success: false, msg: '用户不存在'})
     }
 
-    let checkedUser = await User.checkPassword({username, password})
+    let isOk = await User.checkPassword(password, findUser.password)
 
-    if (checkedUser) {
-        let token = auth.generateToken({id: checkedUser.id})
+    if (isOk) {
+        let token = auth.generateToken({id: findUser.id})
         return res.json({success: true, msg: '登录成功', token})
     }
 

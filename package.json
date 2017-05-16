@@ -4,7 +4,7 @@
   "description": "my blog",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec --compilers ts:ts-node/register test/**/*.test.ts",
+    "test": "cross-env DEBUG=test:* mocha --watch --timeout 10000 --reporter spec --compilers ts:ts-node/register test/**/*.test.ts",
     "dev": "cross-env DEBUG=ts-express:server nodemon --exec ts-node -- ./src/index.ts -e ts",
     "build": "tsc"
   },

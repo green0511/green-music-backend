@@ -6,35 +6,13 @@ import * as debug from 'debug'
 let serverDebugger = debug('ts-express:server')
 
 export const UserSchema = new Schema({
-  username: {
-    type: String,
-    unique: true,
-    required: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  avatar: {
-    type: String,
-    required: true
-  },
-  active: {
-    type: Boolean,
-    required: false
-  },
-  role: {
-    type: String,
-    required: true
-  },
-  created: {
-    type: Date,
-    required: false
-  },
-  updated: {
-    type: Date,
-    required: false
-  },
+  username: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  avatar: { type: String, required: true },
+  active: { type: Boolean, required: false },
+  role: { type: String, required: true },
+  created: { type: Date, required: false },
+  updated: { type: Date, required: false }
 }, {
   toObject: {
     virtuals: true,
@@ -45,9 +23,7 @@ export const UserSchema = new Schema({
       return ret
     }
   }, 
-  toJSON: {
-    virtuals: true
-  }
+  toJSON: { virtuals: true }
 })
 
 UserSchema.pre('save', function (next) {

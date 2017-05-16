@@ -1,9 +1,10 @@
 import * as http from 'http'
 import * as mongoose from 'mongoose'
-import App from './App'
 import { connect } from 'mongoose'
+import App from './App'
 import { config } from './env'
 
+// 更换 Mongoose 的默认 Promise 库
 (<any>mongoose)['Promise'] = Promise
 
 import * as debug from 'debug'

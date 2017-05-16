@@ -91,26 +91,9 @@ export class User {
     })
   }
 
-  static checkPassword({username, password}): Promise<IUser | null> {
-    return new Promise<IUser>((resolve, reject) => {
-      User.find({ username: username })
-        .then(foundUser => {
-          if (!foundUser) { 
-            resolve(null)
-           }
-          new User(foundUser).comparePassword(password)
-            .then(isMatch => resolve(isMatch?foundUser:null))
-            .catch(err => {
-              serverDebugger('check password error: ', err)
-              resolve(null)
-            })
-        })
-    })
-  }
-
-  private comparePassword(password): Promise<boolean> {
+  static checkPassword(originPassword, encryptPassword): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      bcrypt.compare(password, this.document.password, function (err, isMatch) {
+      bcrypt.compare(originPassword, encryptPassword, function (err, isMatch) {
         if (err) { return reject(err) }
         resolve(isMatch)
       })
