@@ -20,6 +20,8 @@ class ListRouter {
     this.router.delete('/:listId', auth.authenticate, this.deleteList)
     // 修改歌单名和简介
     this.router.put('/:listId', auth.authenticate, this.editList)
+    // 增加一次播放次数
+    this.router.put('/:listId/play', auth.authenticate, this.play)
     // 向歌单中添加歌曲
     this.router.post('/:listId/songs', auth.authenticate, this.addSongToList)
     // 向歌单中移除歌曲
@@ -27,10 +29,14 @@ class ListRouter {
   }
   
   public async getAllLists(req: Request, res: Response) {
-    let { page, length } = req.query
+    let { page, length, sort } = req.query
+    let sortArr = ['new', 'hot']
+    if (sortArr.indexOf(sort) == -1) {
+      sort = sortArr[0]
+    }
     page = parseInt(page) || 1
     length = parseInt(length) || 10
-    let findList = await List.find({}, page, length)
+    let findList = await List.find({}, page, length, sort)
     let count = await List.getCount({})
     return res.json({success: true, msg: '', data: findList, count})
   }
@@ -41,6 +47,7 @@ class ListRouter {
     if (!findList) {
       return res.json({success: false, msg: '歌单不存在'})
     }
+    await List.addView(listId)
     return res.json({success: true, msg: '成功', data: findList})
   }
 
@@ -64,7 +71,7 @@ class ListRouter {
       return res.json({success: false, msg: '歌单不存在'})
     }
     let user: IUser = req.user
-    if (listToBeDelete.user.id.toString() !== user._id.toString() && user.role !== 'admin') {
+    if (listToBeDelete.user.id.toString() !== user.id.toString() && user.role !== 'admin') {
       return res.json({success: false, msg: '权限不足'})
     }
     List.delete(listToBeDelete._id)
@@ -80,7 +87,7 @@ class ListRouter {
       return res.json({success: false, msg: '歌单不存在'})
     }
     let user: IUser = req.user
-    if (listToBeEdit.user.id !== user._id && user.role !== 'admin') {
+    if (listToBeEdit.user.id !== user.id && user.role !== 'admin') {
       return res.json({success: false, msg: '权限不足'})
     }
     
@@ -94,6 +101,12 @@ class ListRouter {
     res.json({success: result, msg})
   }
 
+  private async play(req: Request, res: Response) {
+    let { listId } = req.params
+    let play = await List.addPlay(listId)
+    return res.json({success: play})
+  }
+
   private async addSongToList(req: Request, res: Response) {
     let { listId } = req.params
 
@@ -103,7 +116,7 @@ class ListRouter {
     }
 
     let user: IUser = req.user
-    if (list.user.id.toString() !== user._id.toString() && user.role !== 'admin') {
+    if (list.user.id.toString() !== user.id.toString() && user.role !== 'admin') {
       return res.json({success: false, msg: '权限不足'})
     }
 
@@ -145,7 +158,7 @@ class ListRouter {
     }
 
     let user: IUser = req.user
-    if (list.user.id.toString() !== user._id.toString() && user.role !== 'admin') {
+    if (list.user.id.toString() !== user.id.toString() && user.role !== 'admin') {
       return res.json({success: false, msg: '权限不足'})
     }
 

@@ -15,4 +15,6 @@ export interface IList extends Document {
   musics?: Array<IMusic>
   created?: Date
   updated?: Date
+  view: 0,
+  play: 0
 }

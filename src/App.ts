@@ -4,6 +4,7 @@ import * as logger from 'morgan'
 import { userRouter } from './routes/user'
 import { listRouter } from './routes/list'
 import { imageRouter } from './routes/images'
+import { recommendRouter } from './routes/recommend'
 import * as bodyParser from 'body-parser'
 
 import { auth } from './auth'
@@ -46,6 +47,7 @@ class App {
     this.express.use('/users', userRouter)
     this.express.use('/lists', listRouter)
     this.express.use('/images', imageRouter)
+    this.express.use('/recommends', recommendRouter)
   }
 
 }

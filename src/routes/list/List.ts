@@ -43,10 +43,24 @@ export class List {
     })
   }
 
-  static find(query: any, page: number = 1, length: number = 10) {
+  static find(query: any, page: number = 1, length: number = 10, sort: 'new' | 'hot' = 'new') {
+    let sortMap = {
+      'new': {
+        key: 'created',
+        direction: -1
+      },
+      'hot': {
+        key: 'view',
+        direction: -1
+      }
+    }
+    let sortOption = {}
+    sortOption[sortMap[sort].key] = sortMap[sort].direction
     serverDebugger('finding list by query: ', query)
+    serverDebugger('sort list by sortOption: ', sortOption)
     return new Promise<IList[]>((resolve, reject) => {
       ListModel.find(query)
+        .sort(sortOption)
         .populate('user')
         .skip((page - 1) * length)
         .limit(length)
@@ -127,6 +141,48 @@ export class List {
       .catch(err => {
         serverDebugger('update list err: ', err)
         resolve(null)
+      })
+    })
+  }
+
+  static addView(listId: Schema.Types.ObjectId) {
+    return new Promise<boolean>((resolve, reject) => {
+      ListModel.findByIdAndUpdate({
+        _id: listId
+      }, {
+        $inc: {
+          view: 1
+        }
+      })
+      .exec()
+      .then(update => {
+        serverDebugger('add view success for ', listId)
+        resolve(true)
+      })
+      .catch(err => {
+        serverDebugger('add view error,', err)
+        resolve(false)
+      })
+    })
+  }
+
+  static addPlay(listId: Schema.Types.ObjectId) {
+    return new Promise<boolean>((resolve, reject) => {
+      ListModel.findByIdAndUpdate({
+        _id: listId
+      }, {
+        $inc: {
+          play: 1
+        }
+      })
+      .exec()
+      .then(update => {
+        serverDebugger('add play success for ', listId)
+        resolve(true)
+      })
+      .catch(err => {
+        serverDebugger('add play error,', err)
+        resolve(false)
       })
     })
   }

@@ -16,7 +16,11 @@ let {user, password, name, host, port: dbPort} = db
 
 let dbAuthString = user && password ? `${user}:${password}@` : ''
 
-connect(`mongodb://${dbAuthString}${host}:${dbPort}/${db}`).then(() => serverDebugger('mongodb connected'))
+connect(`mongodb://${dbAuthString}${host}:${dbPort}/${name}`,
+  {
+    config: { autoIndex: false }
+  })
+  .then(() => serverDebugger('mongodb connected'))
 
 function onError(error: NodeJS.ErrnoException): void {
   if (error.syscall !== 'listen') throw error
