@@ -121,14 +121,14 @@ export class List {
       ListModel.findOneAndUpdate({_id: listId}, obj)
       .exec()
       .then(update => {
-        console.log('update:', update)
+        serverDebugger('update:', update)
         resolve(update)
       })
       .catch(err => {
         serverDebugger('update list err: ', err)
         resolve(null)
       })
-    }) 
+    })
   }
 
   static addSong(listId: Schema.Types.ObjectId, song: IMusic) {

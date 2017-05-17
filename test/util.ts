@@ -10,27 +10,27 @@ function clearDb() {
     let promiseArr: Array<Promise<any>> = []
     Object.keys(collections).forEach(i => promiseArr.push(collections[i].remove({})))
     Promise.all(promiseArr).then(() => {
-      serverDebugger('clearDb done')
+      // serverDebugger('clearDb done')
       done()
     })
   }
 
   if (connection.readyState === 0) {
-    serverDebugger('no mongodb connection')
+    // serverDebugger('no mongodb connection')
     connect('mongodb://localhost:27017/test')
       .then(() => {
-        serverDebugger('mongodb connected')
+        // serverDebugger('mongodb connected')
       })
       .catch(err => {
-        serverDebugger('mongodb connect err:', err)
+        // serverDebugger('mongodb connect err:', err)
       })
       .then(() => {
-        serverDebugger('clearing mongodb')
+        // serverDebugger('clearing mongodb')
         clearDb()
       })
   } else {
-    serverDebugger('already has mongodb connection')
-    serverDebugger('clearing mongodb')
+    // serverDebugger('already has mongodb connection')
+    // serverDebugger('clearing mongodb')
     clearDb()
   }
 }

@@ -22,6 +22,9 @@ ListSchema.pre('save', function (next) {
   if (!list.created) {
     list.created = new Date()
   }
+  if (!list.musics) {
+    list.musics = []
+  }
   list.updated = new Date()
   next()
 })
