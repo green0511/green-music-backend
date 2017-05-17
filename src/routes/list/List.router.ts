@@ -1,7 +1,9 @@
 import { Router, Response, Request } from 'express'
 import { auth } from '../../auth'
 import { List } from './List'
+import { IMusic } from './List.interface'
 import { User, IUser } from '../user'
+import axios from 'axios'
 
 const PLATFORMS = ['qq']
 
@@ -48,6 +50,9 @@ class ListRouter {
       return res.json({success: false, msg: '歌单不存在'})
     }
     await List.addView(listId)
+    
+    let allSongs = await Promise.all(findList.musics.map(song => axios.get(`http://qq.linhao.me/songs/${song.id}`)))
+    findList.musics = allSongs.map(response => response.data.data)
     return res.json({success: true, msg: '成功', data: findList})
   }
 
@@ -183,6 +188,10 @@ class ListRouter {
     let msg = result ? '移除成功' : '移除失败'
     return res.json({success: result, msg})
 
+  }
+
+  private fetchSongs(songs: IMusic[]) {
+    return Promise.all(songs.map(song => axios.get(`http://qq.linhao.me/songs/${song.id}`)))
   }
 }
 

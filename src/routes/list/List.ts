@@ -77,7 +77,10 @@ export class List {
     serverDebugger('find list by id:', listId)
     return new Promise<IList> ((resolve, reject) => {
       ListModel.findById(listId)
-      .populate('user')
+      .populate({
+        path: 'user',
+        select: 'username avatar'
+      })
       .exec()
       .then(listFound => {
         serverDebugger('found list:', listFound)
