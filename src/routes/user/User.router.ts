@@ -152,8 +152,8 @@ class UserRouter {
 
   public async getCurrentUserInfo(req: Request, res: Response) {
     let user: IUser = req.user
-    let {username, active, created} = user
-    return res.json({username, active, created})
+    let {username, active, created, id} = user
+    return res.json({username, active, created, id})
   }
 
   // 歌单
