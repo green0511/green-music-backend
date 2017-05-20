@@ -5,8 +5,6 @@
 /tmp
 
 # pictures
-/uploads/avatars/*
-/uploads/covers/*
 
 # dependencies
 /node_modules
